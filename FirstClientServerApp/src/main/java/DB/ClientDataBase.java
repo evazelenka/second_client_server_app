@@ -7,10 +7,11 @@ public class ClientDataBase {
     private static Client[] clients = {new Client("zelenka", "12345"), new Client("norman", "2554")};
 
     public static Client getClientByNickName(String name){
+
         for (int i = 0; i < clients.length; i++) {
             if(clients[i].getNickName().equals(name)){
                 return clients[i];
-            }else return null;
+            }
         }
         return null;
     }

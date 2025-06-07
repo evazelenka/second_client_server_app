@@ -40,7 +40,7 @@ public class LogInWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(checkLogin(server.getText(), port.getText(), nickName.getText(), passwd.getPassword())){
                     ServerWindow.reservePort(port.getText());
-                    log.append(LOGIN_SUCCESS);
+                    ClientDataBase.getClientByNickName(nickName.getText()).setOnline();
                     new ClientGUI(serverWindow, nickName.getText());
                     setVisible(false);
                 }else{
@@ -80,6 +80,6 @@ public class LogInWindow extends JFrame {
     }
 
     public static boolean checkLogin(String server, String port, String name, char[] passwd){
-        return ClientDataBase.checkLogin(name, passwd) && ServerWindow.checkServer(server,port);
+        return ClientDataBase.checkLogin(name, passwd) && ServerWindow.checkServer(server,port) && !ClientDataBase.getClientByNickName(name).isOnline();
     }
 }
