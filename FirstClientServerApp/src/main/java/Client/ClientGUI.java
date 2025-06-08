@@ -1,5 +1,6 @@
 package Client;
 
+import Server.Server;
 import Server.ServerWindow;
 
 import javax.swing.*;
@@ -12,20 +13,31 @@ public class ClientGUI extends JFrame {
     private static final int POS_Y = 550;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
-    private static JTextField sendField = new JTextField(100);
-    private static JButton sendBtn = new JButton("send");
-    public static JTextArea log = new JTextArea();
+    private  JTextField sendField = new JTextField(100);
+    private  JButton sendBtn = new JButton("send");
+    public JTextArea log = new JTextArea();
+    private  final String LOGIN_SUCCESS = "loged in successfully\n";
+    private static StringBuilder chat = new StringBuilder();
 
 
-    public ClientGUI(ServerWindow serverWindow, String nameOfUser){
+
+    public ClientGUI(ServerWindow serverWindow){
         setBackground(Color.WHITE);
         setBounds(POS_X+400, POS_Y, WIDTH, HEIGHT);
         setTitle("Chat Client");
+        log.append(LOGIN_SUCCESS);
+//        serverWindow.update(nameOfUser);
+        LogInWindow logInWindow = new LogInWindow(serverWindow);
+//        serverWindow.getLog().append(logInWindow.getNickName() + " connected to the server\n");
+        setVisible(true);
+
+
 
         sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                log.append(nameOfUser + ": " + sendField.getText() + "\n");
+                Server.writeInChat(logInWindow.getNickName().getText() + ": " + sendField.getText());
+                log.setText(chat.toString());
                 sendField.setText("");
             }
         });
@@ -33,12 +45,39 @@ public class ClientGUI extends JFrame {
         sendField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                log.append(nameOfUser + ": " + sendField.getText() + "\n");
+              Server.writeInChat(logInWindow.getNickName().getText() + ": " + sendField.getText());
+                log.setText(Server.readInChat().toString());
                 sendField.setText("");
             }
         });
 
 
-        setVisible(true);
+        updateChat();
+        log.setText(chat.toString());
+
+        JScrollPane scrollLog = new JScrollPane(log);
+        add(scrollLog);
+        JPanel sendPanel = new JPanel(new GridLayout(1, 2));
+        sendPanel.add(sendField);
+        sendPanel.add(sendBtn);
+
+        add(log);
+        add(sendPanel, BorderLayout.SOUTH);
     }
+
+    public void serverStopped(){
+        if(this.isVisible()){
+            this.setVisible(false);
+        }
+    }
+
+    public static StringBuilder updateChat(){
+        System.out.println(Server.isUpdated);
+       if(Server.isUpdated){
+            System.out.println("update");
+            chat = Server.readInChat();
+        }
+        return chat;
+    }
+
 }
