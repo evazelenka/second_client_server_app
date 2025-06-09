@@ -1,6 +1,9 @@
 package Server;
 
 import Client.ClientGUI;
+import Exceptions.PortException;
+import Exceptions.ServerIsDownException;
+import Exceptions.WrongServerException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,35 +16,68 @@ public class Server {
     private static final String SERVER = "127.0.0.1";
     private static final String[] ports = {"80", "17", "84"};
     private static String[] busyPorts = {"0", "0", "0"};
-    public static boolean isServerWorking;
-    public static boolean isUpdated;
+    public static boolean isServerWorking = false;
 
     public static List<ClientGUI> clientsOnline = new ArrayList<ClientGUI>();
 
-    public static boolean checkServer(String server, String port, ClientGUI client){
-        if(SERVER.equals(server) & Arrays.stream(ports).anyMatch(p -> Objects.equals(p, port)) & isServerWorking & isPortFree(port)){
-            clientsOnline.add(client);
-            ServerWindow.appendLog(client.getNickName() + " connected to server\n" + readInChat());
-            return true;
+    public static boolean checkServer(String server, String port, ClientGUI client) throws RuntimeException {
+        try {
+            if( isServerRight(server) & checkWork() & isPortRight(port) & isPortFree(port)){
+                return true;
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
         }
         return false;
     }
 
+    public static void connectToServer(ClientGUI client){
+        if(!clientsOnline.contains(client)){
+            clientsOnline.add(client);
+        }
+        ServerWindow.appendLog(client.getNickName() + " connected to server\n" + readInChat());
+    }
+
+    private static boolean isServerRight(String server) throws WrongServerException {
+        if(SERVER.equals(server)){
+            return true;
+        }else throw new WrongServerException("server not found\ntry another\n");
+    }
+
     public static void disconnect(ClientGUI client){
-        clientsOnline.remove(client);
+        for (int i = 0; i < clientsOnline.size(); i++) {
+            if(client.equals(clientsOnline.get(i))){
+                client.disconnectFromServer();
+                clientsOnline.get(i).setLogged(false);
+//                client.setLogged(false);
+            }
+        }
         for (int i = 0; i < busyPorts.length; i++) {
             if(client.getPort().equals(busyPorts[i])){
                 busyPorts[i] = "0";
             }
         }
-        if (client != null){
-            client.disconnectFromServer();
-        }
     }
 
+    private static boolean checkWork() throws ServerIsDownException {
+        if(isServerWorking){
+            return true;
+        }
+        throw new ServerIsDownException("server is nor running\ntry again later\n");
+    }
 
-    private static boolean isPortFree(String port){
-        return Arrays.stream(busyPorts).noneMatch(p -> Objects.equals(p, port));
+    private static boolean isPortRight(String port) throws PortException {
+        if(Arrays.stream(ports).anyMatch(p -> Objects.equals(p, port))){
+            return true;
+        }else throw new PortException("port is not available\ntry another\n");
+    }
+
+    private static boolean isPortFree(String port) throws PortException {
+        if(Arrays.stream(busyPorts).noneMatch(p -> Objects.equals(p, port))){
+            return true;
+        }else {
+            throw new PortException("the port is busy\n");
+        }
     }
     
 
@@ -56,10 +92,11 @@ public class Server {
 
     public static void stopServer(){
         Arrays.fill(busyPorts, "0");
-        while (!clientsOnline.isEmpty()){
-            System.out.println("yes");
-            disconnect(clientsOnline.get(clientsOnline.size()-1));
+        for (int i = 0; i < clientsOnline.size(); i++) {
+            System.out.println("yes" + clientsOnline.size());
+            disconnect(clientsOnline.get(i));
         }
+
     }
 
 

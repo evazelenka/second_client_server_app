@@ -16,12 +16,4 @@ public class ClientDataBase {
         return null;
     }
 
-
-    public static boolean checkLogin(String name, char[] passwd){
-        StringBuilder sb = new StringBuilder();
-        for (char c : passwd) {
-            sb.append(c);
-        }
-       return getClientByNickName(name).getPasswd().contentEquals(sb);
-    }
 }

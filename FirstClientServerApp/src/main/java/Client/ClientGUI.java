@@ -1,8 +1,12 @@
 package Client;
 
 import DB.ClientDataBase;
+import Exceptions.UnknownAccountException;
+import Exceptions.WrongPasswdException;
 import Server.Server;
 import Server.ServerWindow;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,11 +32,19 @@ public class ClientGUI extends JFrame {
     private  JButton sendBtn = new JButton("send");
     public JTextArea log = new JTextArea();
     private  final String LOGIN_SUCCESS = "loged in successfully\n";
+    Client[] clients = ClientDataBase.getClients();
+
 
     private JPanel loginPanel;
+
+
+    @Setter
     private boolean logged = false;
 
 
+    public boolean getLogged(){
+        return logged;
+    }
 
 
     public ClientGUI(ServerWindow serverWindow){
@@ -40,26 +52,29 @@ public class ClientGUI extends JFrame {
         setBounds(POS_X+400, POS_Y, WIDTH, HEIGHT);
         setTitle("Chat Client");
         setVisible(true);
-
         createPanel();
     }
 
     private void connectToServer(){
-        if(checkLogin(server.getText(), port.getText(), nickName.getText(), passwd.getPassword())){
-            Server.reservePort(port.getText());
-            ClientDataBase.getClientByNickName(nickName.getText()).setOnline();
-            logged = true;
-            loginPanel.setVisible(false);
-            log.append(LOGIN_SUCCESS);
-            log.setText(String.valueOf(Server.readInChat()));
-        }else{
-            log.append(SERVER_IS_DOWN);
+        try {
+            if(checkLogin(server.getText(), port.getText(), nickName.getText(), passwd.getPassword())){
+                Server.reservePort(port.getText());
+//                ClientDataBase.getClientByNickName(nickName.getText()).setOnline();
+                logged = true;
+                loginPanel.setVisible(false);
+                System.out.println(LOGIN_SUCCESS);
+                log.append(LOGIN_SUCCESS);
+                log.setText(String.valueOf(Server.readInChat()));
+            }
+        } catch (RuntimeException e) {
+            log.append(e.getMessage());
         }
     }
 
     public void disconnectFromServer(){
         if(logged){
             logged = false;
+            ClientDataBase.getClientByNickName(nickName.getText()).setOffline();
             loginPanel.setVisible(true);
             Server.disconnect(this);
             log.setText("disconnect\n");
@@ -141,8 +156,48 @@ public class ClientGUI extends JFrame {
         log.append(msg + "\n");
     }
 
-    public boolean checkLogin(String server, String port, String name, char[] passwd){
-        return ClientDataBase.checkLogin(name, passwd) && Server.checkServer(server, port, this) && !ClientDataBase.getClientByNickName(name).isOnline();
+    public boolean checkLogin(String server, String port, String name, char[] passwd) throws RuntimeException {
+        try {
+            if(Server.checkServer(server, port, this)& checkPasswd(name, getPassword(passwd)) & !checkOnline(name)){
+                Server.connectToServer(this);
+                ClientDataBase.getClientByNickName(name).setOnline();
+                return true;
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean checkOnline(String name) throws RuntimeException {
+        if(ClientDataBase.getClientByNickName(name).isOnline()){
+            throw new RuntimeException("user is already online");
+        }
+        return false;
+    }
+
+    public String getPassword(char[] p){
+        String s = new String(p);
+        System.out.println(s);
+        return s;
+    }
+
+    private boolean checkNickName(String name) throws UnknownAccountException {
+        for (int i = 0; i < ClientDataBase.getClients().length; i++) {
+            if(clients[i].getNickName().equals(name)){
+                return true;
+            }
+        }
+        throw new UnknownAccountException("create the account first\n");
+    }
+
+    private boolean checkPasswd(String name, String passwd){
+        if(checkNickName(name)){
+            if(ClientDataBase.getClientByNickName(name).getPasswd().equals(passwd)){
+                return true;
+            }
+        }
+        throw new WrongPasswdException("wrong password\n");
     }
 
     public String getNickName(){
