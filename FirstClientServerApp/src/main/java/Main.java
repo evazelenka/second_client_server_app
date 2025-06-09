@@ -1,6 +1,6 @@
 import Client.ClientGUI;
 import Server.ServerWindow;
-import Client.LogInWindow;
+
 
 public class Main {
     public static void main(String[] args) {

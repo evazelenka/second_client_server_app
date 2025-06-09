@@ -1,6 +1,6 @@
 package Server;
 
-import Client.LogInWindow;
+
 import lombok.Data;
 
 import javax.swing.*;
@@ -22,22 +22,23 @@ public class ServerWindow extends JFrame {
 
     private final JButton btnStart = new JButton("Start");
     private final JButton btnStop = new JButton("Stop");
-    private final JTextArea log = new JTextArea();
+    private static final JTextArea log = new JTextArea();
 
     public static String serverMessage = "";
 
 
     public ServerWindow(){
         isServerWorking = false;
+
         btnStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!isServerWorking){
+                if (!isServerWorking){
                     log.append("Server is not running" + "\n");
-                }else{
+                } else {
                     isServerWorking = false;
-//                    Server.stopServer();
                     serverMessage = "Server stopped " + false + "\n";
+                    Server.stopServer();
                     Server.serverState(ServerWindow.this);
                 }
             }
@@ -68,9 +69,16 @@ public class ServerWindow extends JFrame {
         serverBtns.add(btnStart);
         serverBtns.add(btnStop);
 
+        log.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(log);
+
         add(serverBtns, BorderLayout.SOUTH);
-        add(log);
+        add(scrollPane);
 
         setVisible(true);
+    }
+
+    public static void appendLog(String msg){
+        log.append(msg);
     }
 }

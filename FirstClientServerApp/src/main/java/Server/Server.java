@@ -1,10 +1,11 @@
 package Server;
 
 import Client.ClientGUI;
-import Client.LogInWindow;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class Server {
@@ -15,10 +16,29 @@ public class Server {
     public static boolean isServerWorking;
     public static boolean isUpdated;
 
-    public static boolean checkServer(String server, String port){
+    public static List<ClientGUI> clientsOnline = new ArrayList<ClientGUI>();
 
-        return SERVER.equals(server) & Arrays.stream(ports).anyMatch(p -> Objects.equals(p, port)) & isServerWorking & isPortFree(port);
+    public static boolean checkServer(String server, String port, ClientGUI client){
+        if(SERVER.equals(server) & Arrays.stream(ports).anyMatch(p -> Objects.equals(p, port)) & isServerWorking & isPortFree(port)){
+            clientsOnline.add(client);
+            ServerWindow.appendLog(client.getNickName() + " connected to server\n" + readInChat());
+            return true;
+        }
+        return false;
     }
+
+    public static void disconnect(ClientGUI client){
+        clientsOnline.remove(client);
+        for (int i = 0; i < busyPorts.length; i++) {
+            if(client.getPort().equals(busyPorts[i])){
+                busyPorts[i] = "0";
+            }
+        }
+        if (client != null){
+            client.disconnectFromServer();
+        }
+    }
+
 
     private static boolean isPortFree(String port){
         return Arrays.stream(busyPorts).noneMatch(p -> Objects.equals(p, port));
@@ -34,38 +54,19 @@ public class Server {
         }
     }
 
-    public void stopServer(){
+    public static void stopServer(){
         Arrays.fill(busyPorts, "0");
-//        logInWindow.serverStopped();
+        while (!clientsOnline.isEmpty()){
+            System.out.println("yes");
+            disconnect(clientsOnline.get(clientsOnline.size()-1));
+        }
     }
 
 
-//    public String updateChat(String msg)  {
-//        String chat = "";
-//        StringBuilder c = new StringBuilder("");
-//        try(BufferedWriter fw =new BufferedWriter(new FileWriter("C:\\Users\\evaze\\OneDrive\\Desktop\\zelenka\\chat.txt", true)); BufferedReader fr = new BufferedReader(new FileReader("C:\\Users\\evaze\\OneDrive\\Desktop\\zelenka\\chat.txt"))){
-//            fw.write(msg);
-//            fw.flush();
-//            chat = fr.lines().toString();
-//            Object [] lines = fr.lines().toArray();
-//            for (int i = 0; i < lines.length; i++) {
-//                if(lines.length > 0){
-//                    c.append(lines[lines.length -1 ].toString()).append("\n");
-//                }
-//                c.append(lines[0].toString()).append("\n");
-//            }
-//
-////            chat = fr.readLine();
-//        } catch (IOException e) {
-//            System.out.println("file not found");
-//        }
-//
-//        return msg;
-//    }
 
     public static void serverState(ServerWindow serverWindow){
         String state = ServerWindow.serverMessage;
-        serverWindow.getLog().append(state);
+        ServerWindow.appendLog(state);
     }
 
     public static void writeInChat(String msg){
@@ -73,11 +74,16 @@ public class Server {
             fw.write(msg);
             fw.newLine();
             fw.flush();
-            isUpdated = true;
-            ClientGUI.updateChat();
-
+            answerAll(msg);
+            ServerWindow.appendLog(msg);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void answerAll(String msg){
+        for (ClientGUI client : clientsOnline) {
+            client.answer(msg);
         }
     }
 

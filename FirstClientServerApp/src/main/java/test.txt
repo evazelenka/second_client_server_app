@@ -1,16 +1,13 @@
-
-zelenka: hi
 norman: hi
-zelenka: 
-zelenka: hi
-norman: hi
+zelenka: hi, babe
 norman: hi
 norman: hi
 zelenka: hi
-norman: hi
+zelenka: h
 zelenka: 1
 zelenka: 2
-zelenka: hi
-zelenka: hi
-zelenka: 1
-norman: 1
+zelenka: 3
+zelenka: 4
+zelenka: 5
+zelenka: 6
+zelenka: 7
