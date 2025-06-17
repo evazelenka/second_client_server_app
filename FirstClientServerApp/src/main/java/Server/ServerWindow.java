@@ -1,6 +1,7 @@
 package Server;
 
 
+import DB.ClientDataBase;
 import lombok.Data;
 
 import javax.swing.*;
@@ -19,43 +20,14 @@ public class ServerWindow extends JFrame {
     private static final int HEIGHT = 300;
 
 
-    private final JButton btnStart = new JButton("Start");
-    private final JButton btnStop = new JButton("Stop");
+    private JButton btnStart;
+    private JButton btnStop;
     private static final JTextArea log = new JTextArea();
 
-    public static String serverMessage = "";
 
 
     public ServerWindow(){
         isServerWorking = false;
-
-        btnStop.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!isServerWorking){
-                    log.append("Server is not running" + "\n");
-                } else {
-                    isServerWorking = false;
-                    serverMessage = "Server stopped " + false + "\n";
-                    Server.stopServer();
-                    Server.serverState(ServerWindow.this);
-                }
-            }
-        });
-
-        btnStart.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(isServerWorking){
-                    log.append("Server is already running" + "\n");
-                }else{
-                    isServerWorking = true;
-                    serverMessage = "Server started " + true + "\n";
-                    Server.serverState(ServerWindow.this);
-                }
-
-            }
-        });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBounds(POS_X, POS_Y, WIDTH, HEIGHT);
@@ -64,20 +36,58 @@ public class ServerWindow extends JFrame {
         setBackground(Color.WHITE);
         setAlwaysOnTop(true);
 
-        JPanel serverBtns = new JPanel(new GridLayout(1, 2));
-        serverBtns.add(btnStart);
-        serverBtns.add(btnStop);
-
-        log.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(log);
-
-        add(serverBtns, BorderLayout.SOUTH);
-        add(scrollPane);
+        createPanel();
 
         setVisible(true);
     }
 
     public static void appendLog(String msg){
         log.append(msg);
+    }
+
+    private void createPanel(){
+        log.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(log);
+
+        add(createButtons(), BorderLayout.SOUTH);
+        add(scrollPane);
+    }
+
+    private Component createButtons(){
+        btnStart = new JButton("Start");
+        btnStop = new JButton("Stop");
+
+        btnStop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isServerWorking){
+                    appendLog("Server is not running" + "\n");
+                } else {
+                    ClientDataBase.pushDB();
+                    isServerWorking = false;
+                    appendLog("Server stopped " + false + "\n");
+                    Server.stopServer();
+                }
+            }
+        });
+
+        btnStart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(isServerWorking){
+                    appendLog("Server is already running" + "\n");
+                }else{
+                    ClientDataBase.getDB();
+                    isServerWorking = true;
+                    appendLog("Server started " + true + "\n");
+                }
+
+            }
+        });
+
+        JPanel serverBtns = new JPanel(new GridLayout(1, 2));
+        serverBtns.add(btnStart);
+        serverBtns.add(btnStop);
+        return serverBtns;
     }
 }

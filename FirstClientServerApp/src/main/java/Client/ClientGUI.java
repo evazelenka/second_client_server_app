@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 
 public class ClientGUI extends JFrame {
@@ -28,11 +29,12 @@ public class ClientGUI extends JFrame {
     private  JTextField nickName = new JTextField(20);
     private  JPasswordField passwd = new JPasswordField(20);
     private  JButton logInBtn = new JButton("login");
+    private  JButton signUpBtn = new JButton("sign up");
     private  JTextField sendField = new JTextField(100);
     private  JButton sendBtn = new JButton("send");
     public JTextArea log = new JTextArea();
     private  final String LOGIN_SUCCESS = "loged in successfully\n";
-    Client[] clients = ClientDataBase.getClients();
+    ArrayList<Client> clients = ClientDataBase.getClients();
 
 
     private JPanel loginPanel;
@@ -94,14 +96,25 @@ public class ClientGUI extends JFrame {
                 connectToServer();
             }
         });
+        signUpBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                signUp(new Client(nickName.getText(), passwd.getPassword()));
+                log.append("signed up successfully");
+            }
+        });
 
         loginPanel.add(server);
         loginPanel.add(port);
-        loginPanel.add(new JLabel());
+        loginPanel.add(signUpBtn);
         loginPanel.add(nickName);
         loginPanel.add(passwd);
         loginPanel.add(logInBtn);
         return loginPanel;
+    }
+
+    private void signUp(Client client){
+        ClientDataBase.signUp(client);
     }
 
     private Component createFooter(){
@@ -183,8 +196,8 @@ public class ClientGUI extends JFrame {
     }
 
     private boolean checkNickName(String name) throws UnknownAccountException {
-        for (int i = 0; i < ClientDataBase.getClients().length; i++) {
-            if(clients[i].getNickName().equals(name)){
+        for (int i = 0; i < ClientDataBase.getClients().size(); i++) {
+            if(clients.get(i).getNickName().equals(name)){
                 return true;
             }
         }

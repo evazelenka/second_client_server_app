@@ -1,4 +1,4 @@
-package lection2;
+package ru.gb.jdk.two.online.common;
 
 import java.awt.*;
 
@@ -18,9 +18,16 @@ public abstract class Sprite implements Interactable{
     protected float getHeight(){return 2f * halfHeight;}
 
     @Override
-    public void update(MainCanvas canvas, float deltaTime){}
+    public abstract void update(MainCanvas canvas, float deltaTime);
 
     @Override
-    public void render(MainCanvas canvas, Graphics g){}
+    public abstract void render(MainCanvas canvas, Graphics g);
+
+    public void setXY(float x, float y){
+        this.x = x;
+        this.y = y;
+
+    }
+
 
 }

@@ -1,14 +1,17 @@
-package lection2;
+package ru.gb.jdk.two.online.circles;
+
+import ru.gb.jdk.two.online.common.MainCanvas;
+import ru.gb.jdk.two.online.common.Sprite;
 
 import java.awt.*;
 import java.util.Random;
 
-public class Ball extends Sprite{
+public class Ball extends Sprite {
     private static Random rnd = new Random();
     private final Color color;
     private float vX, vY;
 
-    Ball(){
+    public Ball(){
         halfHeight = 20 + (float) (Math.random() * 50f);
         halfWidth = halfHeight;
         color = new Color(rnd.nextInt());

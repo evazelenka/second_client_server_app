@@ -100,12 +100,6 @@ public class Server {
     }
 
 
-
-    public static void serverState(ServerWindow serverWindow){
-        String state = ServerWindow.serverMessage;
-        ServerWindow.appendLog(state);
-    }
-
     public static void writeInChat(String msg){
         try(BufferedWriter fw =new BufferedWriter(new FileWriter("src/main/java/test.txt", true))){
             fw.write(msg);

@@ -1,9 +1,14 @@
-package lection2;
+package ru.gb.jdk.two.online.bricks;
+
+import ru.gb.jdk.two.online.circles.Background;
+import ru.gb.jdk.two.online.common.CanvasRepaintListener;
+import ru.gb.jdk.two.online.common.Interactable;
+import ru.gb.jdk.two.online.common.MainCanvas;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements CanvasRepaintListener {
     private static final int POS_X = 400;
     private static final int POS_Y = 200;
     private static final int WINDOW_WIDTH = 800;
@@ -14,10 +19,10 @@ public class MainWindow extends JFrame {
     private MainWindow(){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(POS_X, POS_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
-        setTitle("Circles");
+        setTitle("Bricks");
         sprites[0] = new Background();
         for (int i = 1; i < sprites.length; i++) {
-            sprites[i] = new Ball();
+            sprites[i] = new Brick();
         }
 
         MainCanvas canvas = new MainCanvas(this);
@@ -25,6 +30,7 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
+    @Override
     public void onDrawFrame(MainCanvas canvas, Graphics g, float deltaTime){
         update(canvas, deltaTime);
         render(canvas, g);
@@ -44,4 +50,5 @@ public class MainWindow extends JFrame {
     public static void main(String[] args) {
         new MainWindow();
     }
+
 }

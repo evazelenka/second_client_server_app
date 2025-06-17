@@ -1,14 +1,17 @@
-package lection2;
+package ru.gb.jdk.two.online.bricks;
+
+import ru.gb.jdk.two.online.common.MainCanvas;
+import ru.gb.jdk.two.online.common.Sprite;
 
 import java.awt.*;
 import java.util.Random;
 
-public class Ball extends Sprite{
+public class Brick extends Sprite {
     private static Random rnd = new Random();
     private final Color color;
     private float vX, vY;
 
-    Ball(){
+    public Brick(){
         halfHeight = 20 + (float) (Math.random() * 50f);
         halfWidth = halfHeight;
         color = new Color(rnd.nextInt());
@@ -19,8 +22,12 @@ public class Ball extends Sprite{
     @Override
     public void render(MainCanvas canvas, Graphics g) {
         g.setColor(color);
-        g.fillOval((int) getLeft(), (int) getTop(),
+//        g.fillOval((int) getLeft(), (int) getTop(),
+//                (int) getWidth(), (int) getHeight());
+        g.drawRect((int) getLeft(), (int) getTop(),
                 (int) getWidth(), (int) getHeight());
+//        g.fillRect((int) getLeft(), (int) getTop(),
+//                (int) getWidth(), (int) getHeight());
     }
 
     @Override
